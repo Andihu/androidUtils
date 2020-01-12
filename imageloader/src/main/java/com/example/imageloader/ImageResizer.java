@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import java.io.FileDescriptor;
+import java.io.InputStream;
 
 public class ImageResizer {
 
@@ -26,6 +27,22 @@ public class ImageResizer {
         options.inJustDecodeBounds = false;
 
         return BitmapFactory.decodeResource(res, resid, options);
+
+    }
+
+    public Bitmap decodeSampleBitmapFromInputStream(InputStream inputStream,int reqWidth,int reqHeight){
+
+        final BitmapFactory.Options options=new BitmapFactory.Options();
+
+        options.inJustDecodeBounds=true;
+
+        BitmapFactory.decodeStream(inputStream,null,options);
+
+        options.inSampleSize =calculateSampleSize(options,reqWidth,reqHeight);
+
+        options.inJustDecodeBounds=false;
+
+        return BitmapFactory.decodeStream(inputStream,null,options);
 
     }
 

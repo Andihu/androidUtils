@@ -13,11 +13,8 @@ import android.os.StatFs;
 import android.util.Log;
 import android.util.LruCache;
 import android.widget.ImageView;
-
 import androidx.annotation.NonNull;
-
 import com.jakewharton.disklrucache.DiskLruCache;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -264,9 +261,14 @@ public class ImageLoader {
             bitmap = BitmapFactory.decodeStream(in);
 
         } catch (MalformedURLException e) {
+
             e.printStackTrace();
+
         } catch (IOException e) {
+
             e.printStackTrace();
+
+
         } finally {
             if (urlConnection != null) {
 
@@ -275,10 +277,15 @@ public class ImageLoader {
 
             try {
                 in.close();
+
             } catch (IOException e) {
+
                 e.printStackTrace();
+
             }
+
         }
+
         return bitmap;
 
     }
@@ -393,18 +400,31 @@ public class ImageLoader {
             return true;
 
         } catch (MalformedURLException e) {
+
             e.printStackTrace();
+
         } catch (IOException e) {
+
             e.printStackTrace();
+
         } finally {
+
             if (urlConnection != null) {
+
                 urlConnection.disconnect();
+
             }
+
             try {
+
                 out.close();
+
                 in.close();
+
             } catch (IOException e) {
+
                 e.printStackTrace();
+
             }
 
         }
@@ -413,6 +433,7 @@ public class ImageLoader {
     }
 
     private String hashKeyFromUrl(String url) {
+
         String cacheKey;
 
         try {
