@@ -48,16 +48,14 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         if (!entrys.get(position).equals(imageView.getTag())){
 
-
             imageView.setBackgroundColor(Color.BLACK);
-
 
         }
 
 
         imageView.setTag(entrys.get(position));
 
-        contactLoader.bindBitmap(entrys.get(position),imageView);
+        contactLoader.bindBitmap(entrys.get(position),imageView,imageView.getWidth(),imageView.getHeight());
 
     }
 
