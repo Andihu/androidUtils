@@ -16,6 +16,8 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -34,7 +36,7 @@ public class ContactLoader {
 
     public static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
 
-    private static final int TAG_KEY_URI = 11;
+    private static final int TAG_KEY_URI = R.id.imageloader_uri;
 
     private static final int MESSAGE_POST_RESULT = 1;
 
@@ -86,7 +88,7 @@ public class ContactLoader {
 
     private ContactLoader(Context context) {
 
-        mContext = context.getApplicationContext();
+        mContext = context;
 
         int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
 
@@ -109,6 +111,8 @@ public class ContactLoader {
     }
 
     public void bindBitmap(final String uri, final ImageView imageView, final int reqWidth, final int reqHeight) {
+
+        imageView.setTag(TAG_KEY_URI,uri);
 
         Bitmap bitmap = getBitmapFromMemChache(uri);
 
@@ -171,11 +175,11 @@ public class ContactLoader {
 
         String phone4 = "+86 " + phone2;
 
+        String[] selectionArg = new String[]{phone, phone1, phone2, phone3, phone4};
+
         String[] projection = {ContactsContract.CommonDataKinds.Phone.CONTACT_ID};
 
         String selection = ContactsContract.CommonDataKinds.Phone.NUMBER + " in(?,?,?,?,?) ";
-
-        String[] selectionArg = new String[]{phone, phone1, phone2, phone3, phone4};
 
         Cursor cursor = mContext.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, projection, selection, selectionArg, null, null);
 
@@ -193,7 +197,14 @@ public class ContactLoader {
 
                     InputStream is = ContactsContract.Contacts.openContactPhotoInputStream(mContext.getContentResolver(), uri);
 
-                    bitmap = decodeSampleBitmapFromInputStream(is,reqWidth,reqHeight);
+                    if (is!=null){
+
+                        bitmap = decodeSampleBitmapFromInputStream(is,reqWidth,reqHeight);
+
+                    }else {
+
+                        bitmap = null;
+                    }
 
                     if (bitmap != null) {
 
@@ -238,13 +249,17 @@ public class ContactLoader {
 
         options.inJustDecodeBounds=true;
 
-        BitmapFactory.decodeStream(inputStream,null,options);
+        byte[] data = inputStreamToByteArray(inputStream);
+
+        BitmapFactory.decodeByteArray(data, 0, data.length, options);
 
         options.inSampleSize =calculateSampleSize(options,reqWidth,reqHeight);
 
         options.inJustDecodeBounds=false;
 
-        return BitmapFactory.decodeStream(inputStream,null,options);
+        BitmapFactory.decodeStream(inputStream);
+
+        return BitmapFactory.decodeByteArray(data, 0, data.length, options);
 
     }
 
@@ -280,6 +295,41 @@ public class ContactLoader {
 
     }
 
+    public static byte[] inputStreamToByteArray(InputStream in) {
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        byte[] buffer = new byte[1024];
+
+        int len;
+
+        try {
+
+            while ((len = in.read(buffer)) != -1) {
+
+                outputStream.write(buffer, 0, len);
+
+            }
+        } catch (IOException e) {
+
+            e.printStackTrace();
+
+        } finally {
+
+            try {
+
+                if(in!=null) in.close();
+
+                if (outputStream!=null) outputStream.close();
+
+            } catch (IOException e) {
+
+                e.printStackTrace();
+            }
+        }
+        return outputStream.toByteArray();
+    }
+
     private static class LoaderResult {
 
         public ImageView imageView;
@@ -297,6 +347,5 @@ public class ContactLoader {
             this.bitmap = bitmap;
         }
     }
-
 
 }
