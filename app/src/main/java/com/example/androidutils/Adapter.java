@@ -6,19 +6,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.imageloader.ContactImageLoader;
 import com.example.imageloader.ContactLoader;
+import com.example.imageloader.ContactNameLoader;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     ContactLoader contactLoader;
 
-    private List<String> entrys;
+    private List<String> entrys=new ArrayList<>();
 
     public Adapter(Context context) {
         contactLoader=ContactLoader.builder(context);
@@ -41,23 +45,11 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
-        Holder itemView = (Holder) holder;
+        Holder viewhodel = (Holder) holder;
 
+//        ContactNameLoader.loadMediaStoreThumbnail(viewhodel.textView,entrys.get(position),null);
 
-        ImageView imageView=  itemView.imageView;
-
-        if (!entrys.get(position).equals(imageView.getTag())){
-
-
-            imageView.setBackgroundColor(Color.BLACK);
-
-
-        }
-
-
-        imageView.setTag(entrys.get(position));
-
-        contactLoader.bindBitmap(entrys.get(position),imageView);
+        ContactImageLoader.loadMediaStoreThumbnail(viewhodel.imageView.getContext().getContentResolver(),viewhodel.imageView,entrys.get(position),null);
 
     }
 
@@ -66,14 +58,16 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return entrys==null?0:entrys.size();
     }
 
-    private static class Holder extends RecyclerView.ViewHolder{
+    private  class Holder extends RecyclerView.ViewHolder{
 
-        public static ImageView imageView;
+        public  ImageView imageView;
+        public  TextView textView;
 
         public Holder(@NonNull View itemView) {
             super(itemView);
-
             imageView = itemView.findViewById(R.id.image);
+            textView=itemView.findViewById(R.id.name);
+
         }
 
     }
